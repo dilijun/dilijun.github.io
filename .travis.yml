@@ -1,0 +1,39 @@
+language: node_js
+node_js: stable
+cache:
+    apt: true
+    directories:
+        - node_modules
+before_install:
+    - export TZ='Asia/Shanghai'
+
+install:
+    - npm install
+
+script:
+    - hexo clean
+    - hexo generate
+
+after_script:
+    - cd ./public
+    - git init
+    - git config user.name "dilijun"
+    - git config user.email "dlj4job@sina.com"
+    - git add .
+    - git commit -m "Travis CI Auto Builder at `date +"%Y-%m-%d %H:%M"`"
+    - git push --force --quiet "https://${CI_TOKEN}@${GH_REF}" master:master
+    - git push --force --quiet "https://dilijun:${CO_TOKEN}@${CO_REF}" master:master
+branches:
+  only:
+    - hexo
+
+env:
+  global:
+    - GH_REF: github.com/dilijun/dilijun.github.io.git
+    - CO_REF: git.coding.net/dilijun/dilijun.coding.me.git
+
+notifications:
+  email:
+    - dlj4job@sina.com
+  on_success: change
+  on_failure: always
